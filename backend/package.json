@@ -1,21 +1,33 @@
 {
-  "name": "backend",
+  "name": "crowdpulse-backend",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --forceExit --testTimeout=15000",
+    "test:watch": "jest --watch --forceExit"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": ["**/tests/**/*.test.js"],
+    "collectCoverageFrom": ["routes/**/*.js", "data/**/*.js", "app.js"]
   },
   "keywords": [],
-  "author": "",
+  "author": "CrowdPulse Team",
   "license": "ISC",
-  "description": "",
+  "description": "CrowdPulse Backend — Real-time venue intelligence API",
   "dependencies": {
+    "@google/generative-ai": "^0.21.0",
     "axios": "^1.15.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "express-rate-limit": "^7.5.0",
     "socket.io": "^4.8.3"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.1.0"
   }
 }
