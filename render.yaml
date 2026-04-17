@@ -11,6 +11,6 @@ services:
       - key: PORT
         value: 10000
       - key: FRONTEND_URL
-        sync: false   # Set this to your Vercel URL in the Render dashboard
+        sync: false   # https://crowdpulse.vercel.app
       - key: GEMINI_API_KEY
         sync: false   # Set your Gemini API key in the Render dashboard
