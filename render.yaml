@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: crowdpulse-backend
+    env: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: FRONTEND_URL
+        sync: false   # Set this to your Vercel URL in the Render dashboard
+      - key: GEMINI_API_KEY
+        sync: false   # Set your Gemini API key in the Render dashboard
