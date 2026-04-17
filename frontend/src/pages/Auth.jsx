@@ -9,6 +9,12 @@ export default function Auth() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  const VALID_CREDENTIALS = [
+    { username: 'admin',  password: 'admin123', role: 'admin' },
+    { username: 'arav',  password: 'arav',     role: 'attendee' },
+    { username: 'harsh', password: 'harsh',    role: 'attendee' },
+  ];
+
   const handleAuth = (e) => {
     e.preventDefault();
     if (!username || !password) {
@@ -16,12 +22,15 @@ export default function Auth() {
       return;
     }
 
-    if (username.toLowerCase() === 'admin' && password === 'admin123') {
-      localStorage.setItem('userRole', 'admin');
-      navigate('/admin');
+    const match = VALID_CREDENTIALS.find(
+      (c) => c.username === username.toLowerCase() && c.password === password
+    );
+
+    if (match) {
+      localStorage.setItem('userRole', match.role);
+      navigate(match.role === 'admin' ? '/admin' : '/attendee');
     } else {
-      localStorage.setItem('userRole', 'attendee');
-      navigate('/attendee');
+      setError('Invalid username or password.');
     }
   };
 
@@ -82,11 +91,28 @@ export default function Auth() {
           </button>
         </form>
 
-        <div className="mt-8 text-center text-sm font-bold text-slate-400">
-          {isLogin ? "Don't have an account? " : "Already have an account? "}
-          <button onClick={() => { setIsLogin(!isLogin); setError(''); }} className="text-brand-400 hover:text-brand-300 underline underline-offset-4 decoration-brand-500/50">
-            {isLogin ? 'Sign up' : 'Log in'}
-          </button>
+        {/* Demo credentials hint */}
+        <div className="mt-6 p-4 rounded-2xl bg-slate-900/60 border border-slate-700/50">
+          <p className="text-xs font-black tracking-widest uppercase text-slate-500 mb-3 text-center">Demo Credentials</p>
+          <div className="space-y-2">
+            {[
+              { user: 'admin',  pass: 'admin123', tag: 'Admin',    color: 'text-rose-400' },
+              { user: 'arav',   pass: 'arav',     tag: 'Attendee', color: 'text-brand-400' },
+              { user: 'harsh',  pass: 'harsh',    tag: 'Attendee', color: 'text-brand-400' },
+            ].map(({ user, pass, tag, color }) => (
+              <button
+                key={user}
+                type="button"
+                onClick={() => { setUsername(user); setPassword(pass); setError(''); }}
+                className="w-full flex items-center justify-between px-4 py-2 rounded-xl bg-slate-800/60 hover:bg-slate-700/60 transition-colors group"
+              >
+                <span className="text-slate-300 text-sm font-bold group-hover:text-white transition-colors">
+                  {user} / {pass}
+                </span>
+                <span className={`text-xs font-black tracking-wider ${color}`}>{tag}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>
