@@ -5,8 +5,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "test": "jest --forceExit --testTimeout=15000",
-    "test:watch": "jest --watch --forceExit"
+    "test": "jest --testTimeout=15000",
+    "test:watch": "jest --watch --detectOpenHandles"
   },
   "jest": {
     "testEnvironment": "node",
