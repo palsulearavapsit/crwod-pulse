@@ -13,10 +13,10 @@ const LanguageSwitcher: React.FC = () => {
   return (
     <button 
       onClick={toggleLanguage}
-      className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/50 border border-slate-700 hover:border-brand-500/50 text-slate-300 transition-all text-xs font-bold"
+      className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/50 border border-slate-700 hover:border-brand-500/50 text-slate-300 transition-all text-xs font-bold lang-toggle-btn"
     >
-      <Globe size={14} />
-      {i18n.language.toUpperCase()}
+      <Globe size={14} className="pointer-events-none" />
+      <span className="pointer-events-none">{i18n.language.toUpperCase()}</span>
     </button>
   );
 };

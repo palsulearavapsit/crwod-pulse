@@ -12,7 +12,8 @@ const resources = {
       "emergency": "Emergency Guide",
       "chat": "AI Assistant",
       "ingress": "Optimal Ingress Path",
-      "venue_intelligence": "Venue Intelligence"
+      "venue_intelligence": "Venue Intelligence",
+      "brand_name": "CrowdPulse"
     }
   },
   hi: {
@@ -24,7 +25,8 @@ const resources = {
       "emergency": "आपातकालीन मार्गदर्शिका",
       "chat": "एआई सहायक",
       "ingress": "इष्टतम प्रवेश मार्ग",
-      "venue_intelligence": "स्थल इंटेलिजेंस"
+      "venue_intelligence": "स्थल इंटेलिजेंस",
+      "brand_name": "क्राउडपल्स"
     }
   }
 };
@@ -35,6 +37,11 @@ i18n
   .init({
     resources,
     fallbackLng: 'en',
+    supportedLngs: ['en', 'hi'],
+    detection: {
+      order: ['localStorage', 'cookie', 'navigator'],
+      caches: ['localStorage'] // Ensure it stays Hindi after toggle
+    },
     interpolation: {
       escapeValue: false
     }

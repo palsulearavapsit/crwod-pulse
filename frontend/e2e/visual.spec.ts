@@ -24,11 +24,11 @@ test.describe('Visual & Logic Check', () => {
     await page.waitForLoadState('networkidle');
     
     // Toggle from EN to HI
-    const langBtn = page.getByRole('button', { name: /EN|HI/i });
+    const langBtn = page.locator('.lang-toggle-btn');
     await expect(langBtn).toBeVisible();
     await langBtn.click();
     
-    // Check for "Venue Intelligence" in Hindi or similar marker
-    await expect(page.locator('body')).toContainText(/इंटेलिजेंस/); 
+    // Check for "CrowdPulse" translated to Hindi in the brand-header
+    await expect(page.locator('.brand-header').first()).toContainText('क्राउडपल्स'); 
   });
 });

@@ -34,8 +34,8 @@ const AttendeeDashboard: React.FC = () => {
             <Shield className="text-white" size={22} />
           </div>
           <div>
-            <h1 className="text-xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
-              CrowdPulse
+            <h1 className="text-xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400 brand-header">
+              {t('brand_name', 'CrowdPulse')}
             </h1>
             <p className="text-[10px] text-brand-400 font-bold uppercase tracking-widest leading-none">
               {t('venue_intelligence', 'Venue Intelligence')}
