@@ -10,8 +10,9 @@ test.describe('Authentication Flow', () => {
   test('should login as test attendee', async ({ page }) => {
     await page.goto('/login');
     
-    // Switch to login explicitly if needed or use demo button
-    await page.click('button:has-text("arav / arav")');
+    // Use the new industrial-grade form fields
+    await page.fill('input[placeholder="Username"]', 'arav');
+    await page.fill('input[placeholder="Password"]', 'arav');
     await page.click('button:has-text("Access System")');
     
     // After login, should land on attendee dashboard
