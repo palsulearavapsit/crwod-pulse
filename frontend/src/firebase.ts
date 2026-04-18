@@ -17,8 +17,12 @@ export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 
 let analytics: Analytics | null = null;
-if (typeof window !== 'undefined' && import.meta.env.VITE_FIREBASE_MEASUREMENT_ID) {
-  analytics = getAnalytics(app);
+if (typeof window !== 'undefined' && import.meta.env.VITE_FIREBASE_MEASUREMENT_ID?.startsWith('G-')) {
+  try {
+    analytics = getAnalytics(app);
+  } catch (err) {
+    console.error('Firebase Analytics failed to initialize:', err);
+  }
 }
 
 export const logAnalyticsEvent = (eventName: string, params?: any) => {

@@ -9,7 +9,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
+      includeAssets: ['favicon.svg'],
       manifest: {
         name: 'CrowdPulse',
         short_name: 'CrowdPulse',
@@ -31,15 +31,12 @@ export default defineConfig({
     })
   ],
   build: {
-    // Point 10: Automatic code splitting
     rollupOptions: {
       output: {
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('framer-motion')) return 'vendor';
-            if (id.includes('recharts')) return 'charts';
-            return 'libs';
-          }
+        manualChunks: {
+          'vendor': ['react', 'react-dom', 'react-router-dom'],
+          'firebase-libs': ['firebase/app', 'firebase/auth', 'firebase/analytics'],
+          'viz-libs': ['recharts', 'lucide-react']
         }
       }
     }
