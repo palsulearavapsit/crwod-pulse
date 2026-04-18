@@ -15,8 +15,8 @@ test.describe('Visual & Logic Check', () => {
     await page.waitForLoadState('networkidle');
     
     // Verify dashboard core elements are visible
-    await expect(page.locator('h1')).toContainText('CrowdPulse');
-    await expect(page.locator('.glass-panel')).toBeVisible();
+    await expect(page.locator('h1').first()).toContainText('CrowdPulse');
+    await expect(page.locator('.glass-panel').first()).toBeVisible();
   });
 
   test('i18n switching works correctly', async ({ page }) => {
@@ -29,7 +29,6 @@ test.describe('Visual & Logic Check', () => {
     await langBtn.click();
     
     // Check for "Venue Intelligence" in Hindi or similar marker
-    // In our i18n/config, "Venue Intelligence" -> "स्थल इंटेलिजेंस"
-    await expect(page).toHaveText(/इंटेलिजेंस/); 
+    await expect(page.locator('body')).toContainText(/इंटेलिजेंस/); 
   });
 });
