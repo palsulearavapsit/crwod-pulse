@@ -38,7 +38,7 @@ const AttendeeDashboard: React.FC = () => {
               CrowdPulse
             </h1>
             <p className="text-[10px] text-brand-400 font-bold uppercase tracking-widest leading-none">
-              Venue Intelligence
+              {t('venue_intelligence', 'Venue Intelligence')}
             </p>
           </div>
         </div>

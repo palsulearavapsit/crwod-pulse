@@ -11,7 +11,8 @@ const resources = {
       "wait_time": "Wait Time",
       "emergency": "Emergency Guide",
       "chat": "AI Assistant",
-      "ingress": "Optimal Ingress Path"
+      "ingress": "Optimal Ingress Path",
+      "venue_intelligence": "Venue Intelligence"
     }
   },
   hi: {
@@ -22,7 +23,8 @@ const resources = {
       "wait_time": "प्रतीक्षा समय",
       "emergency": "आपातकालीन मार्गदर्शिका",
       "chat": "एआई सहायक",
-      "ingress": "इष्टतम प्रवेश मार्ग"
+      "ingress": "इष्टतम प्रवेश मार्ग",
+      "venue_intelligence": "स्थल इंटेलिजेंस"
     }
   }
 };
