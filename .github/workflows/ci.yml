@@ -68,12 +68,10 @@ jobs:
     defaults:
       run:
         working-directory: ./frontend
-
     env:
       VITE_API_URL: http://localhost:3001
       VITE_SOCKET_URL: http://localhost:3001
       VITE_ADMIN_SECRET: test-admin-token
-
     steps:
       - uses: actions/checkout@v4
 
@@ -87,3 +85,35 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  # ── End-to-End Tests ───────────────────────────────────────────────────────
+  e2e-test:
+    name: E2E Tests (Playwright)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: npm install --prefer-offline
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+      - name: Start Backend
+        run: |
+          cd ../backend
+          npm install
+          npm start &
+        env:
+          PORT: 3000
+          ADMIN_SECRET: crowdpulse-admin-2024
+          NODE_ENV: development
+      - name: Run Playwright tests
+        run: npx playwright test
+        env:
+          VITE_API_URL: http://localhost:3000
+          VITE_SOCKET_URL: http://localhost:3000
+
