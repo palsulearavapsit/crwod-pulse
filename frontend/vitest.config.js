@@ -18,11 +18,12 @@ export default defineConfig({
         statements: 70,
       },
       exclude: [
-      'node_modules/**',
-      'src/__tests__/**',
-      'src/main.jsx',
-      '**/*.config.*',
-      'e2e/**',
-    ],
+        'node_modules/**',
+        'src/__tests__/**',
+        'src/main.jsx',
+        '**/*.config.*',
+        'e2e/**',
+      ],
+    },
   },
 });
