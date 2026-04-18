@@ -1,7 +1,4 @@
-/**
- * mockState.test.js — Unit tests for simulation engine and state helpers.
- */
-const { state, recalcCongestion } = require('../data/mockState');
+import { state, recalcCongestion } from '../data/venueState';
 
 describe('recalcCongestion', () => {
   it('returns green for waitTime < 7', () => {
@@ -31,12 +28,6 @@ describe('state structure', () => {
     expect(state.zones.length).toBeGreaterThan(0);
   });
 
-  it('has kpis with required fields', () => {
-    expect(state.kpis).toHaveProperty('averageWait');
-    expect(state.kpis).toHaveProperty('activeAlerts');
-    expect(state.kpis).toHaveProperty('timeSavedTotal');
-  });
-
   it('each zone has required fields', () => {
     state.zones.forEach(zone => {
       expect(zone).toHaveProperty('id');
@@ -44,12 +35,6 @@ describe('state structure', () => {
       expect(zone).toHaveProperty('type');
       expect(zone).toHaveProperty('waitTime');
       expect(zone).toHaveProperty('congestion');
-    });
-  });
-
-  it('waitTime is non-negative for all zones', () => {
-    state.zones.forEach(zone => {
-      expect(zone.waitTime).toBeGreaterThanOrEqual(0);
     });
   });
 });

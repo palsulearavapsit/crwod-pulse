@@ -35,6 +35,14 @@ const aiLimiter = rateLimit({
   skip: () => IS_TEST,
 });
 
+const adminLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: IS_TEST ? 10_000 : 100,
+  message: { error: 'Admin rate limit reached.' },
+  skip: () => IS_TEST,
+});
+
+
 // ── Middleware ────────────────────────────────────────────────────────────
 app.use(compression());
 app.use(cors({ origin: IS_TEST ? true : allowedOrigins, credentials: true }));

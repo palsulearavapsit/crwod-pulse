@@ -34,9 +34,12 @@ export default defineConfig({
     // Point 10: Automatic code splitting
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'framer-motion', 'recharts'],
-          maps: ['@react-google-maps/api']
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('framer-motion')) return 'vendor';
+            if (id.includes('recharts')) return 'charts';
+            return 'libs';
+          }
         }
       }
     }

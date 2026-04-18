@@ -1,7 +1,10 @@
 import React from 'react';
-import { FixedSizeList as List } from 'react-window';
+import * as ReactWindow from 'react-window';
 import { Zone } from '../../types';
 import { MapPin, Clock } from 'lucide-react';
+
+// @ts-ignore
+const { FixedSizeList: List } = ReactWindow;
 
 interface ZoneListProps {
   zones: Zone[];

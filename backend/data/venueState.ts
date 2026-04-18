@@ -57,6 +57,17 @@ if (db) {
 }
 
 /**
+ * Helper to determine congestion color based on wait time and status
+ * Point 6: Enforcing business logic consistency through types
+ */
+export const recalcCongestion = (zone: { waitTime: number; isClosed?: boolean }): 'green' | 'yellow' | 'red' => {
+  if (zone.isClosed) return 'red';
+  if (zone.waitTime < 7) return 'green';
+  if (zone.waitTime < 15) return 'yellow';
+  return 'red';
+};
+
+/**
  * Persist state change
  */
 export const updateState = async (newState: Partial<VenueState>) => {
