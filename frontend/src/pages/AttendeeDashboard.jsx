@@ -1,27 +1,30 @@
-import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import { useEffect, useState, useRef, useCallback, useMemo, memo } from 'react';
 import { io } from 'socket.io-client';
 import { MapPin, Navigation, Clock, MessageSquare, Mic, Compass, Crown, CreditCard, ArrowUpCircle, LogOut, Globe, BarChart2, Shield } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { GoogleMap, LoadScript, Marker, Circle } from '@react-google-maps/api';
 import { CONGESTION_LABEL, CONGESTION_COLOR, CONGESTION_BG, SUPPORTED_LANGS, ROLES } from '../utils/constants';
 import { apiFetch } from '../utils/fetchUtils';
+import { trackEvent } from '../firebase';
 
 const API_URL    = import.meta.env.VITE_API_URL    || 'http://localhost:3000';
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3000';
 
-// Google Maps Embed — works without API key via public embed format
-const VENUE_MAP_URL = `https://maps.google.com/maps?q=narendra+modi+stadium+ahmedabad&z=15&output=embed&hl=en`;
-
-// Track events to Google Analytics
-function trackEvent(action, category, label) {
-  if (typeof gtag !== 'undefined') {
-    gtag('event', action, { event_category: category, event_label: label });
-  }
-}
+// Google Maps Config
+const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'fake_demo_key';
+const MAP_CONTAINER_STYLE = { width: '100%', height: '100%' };
+const MAP_CENTER = { lat: 23.0927, lng: 72.5976 }; // Narendra Modi Stadium
 
 // ── Bar colours ────────────────────────────────────────────────────────────────
 const BAR_COLOR = { green: '#10b981', yellow: '#f59e0b', red: '#f43f5e' };
 
+/**
+ * AttendeeDashboard component provides the live venue experience for visitors.
+ * It monitors zone congestion, provides Google Maps navigation, interactive AI chat,
+ * and emergency guidance functionalities.
+ * @returns {JSX.Element} The rendered attendee dashboard.
+ */
 export default function AttendeeDashboard() {
   const [state, setState]               = useState({ zones: [], alerts: [], kpis: {} });
   const [recommendations, setRecs]      = useState(null);
@@ -161,6 +164,24 @@ export default function AttendeeDashboard() {
       })),
     [state.zones]
   );
+  
+  const ChartComponent = useMemo(() => (
+    <ResponsiveContainer width="100%" height={200}>
+      <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 40 }}>
+        <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#64748b' }} angle={-35} textAnchor="end" interval={0} />
+        <YAxis tick={{ fontSize: 10, fill: '#64748b' }} />
+        <Tooltip
+          contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '12px', color: '#e2e8f0' }}
+          formatter={(val) => [`${val} min`, 'Wait Time']}
+        />
+        <Bar dataKey="wait" radius={[6, 6, 0, 0]}>
+          {chartData.map((entry, i) => (
+            <Cell key={i} fill={BAR_COLOR[entry.congestion] || '#10b981'} />
+          ))}
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
+  ), [chartData]);
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 4000); };
 
@@ -332,21 +353,7 @@ export default function AttendeeDashboard() {
             {activeTab === 'chart' && (
               <section aria-labelledby="chart-heading" className="glass-panel rounded-2xl p-5">
                 <h3 id="chart-heading" className="text-sm font-black uppercase tracking-widest text-slate-400 mb-4">Wait Times by Zone (minutes)</h3>
-                <ResponsiveContainer width="100%" height={200}>
-                  <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 40 }}>
-                    <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#64748b' }} angle={-35} textAnchor="end" interval={0} />
-                    <YAxis tick={{ fontSize: 10, fill: '#64748b' }} />
-                    <Tooltip
-                      contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '12px', color: '#e2e8f0' }}
-                      formatter={(val) => [`${val} min`, 'Wait Time']}
-                    />
-                    <Bar dataKey="wait" radius={[6, 6, 0, 0]}>
-                      {chartData.map((entry, i) => (
-                        <Cell key={i} fill={BAR_COLOR[entry.congestion] || '#10b981'} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
+                {ChartComponent}
                 <p className="text-xs text-slate-500 text-center mt-3">
                   🟢 Low &nbsp;🟡 Moderate &nbsp;🔴 High congestion — Updates every 4s
                 </p>
@@ -360,14 +367,37 @@ export default function AttendeeDashboard() {
               📍 Venue — Narendra Modi Stadium, Ahmedabad
             </h2>
             <div className="rounded-2xl overflow-hidden border border-slate-700/50 shadow-xl h-52">
-              <iframe
-                title="Venue location: Narendra Modi Stadium, Ahmedabad, India"
-                src={VENUE_MAP_URL}
-                width="100%" height="100%"
-                style={{ border: 0 }}
-                allowFullScreen loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              />
+              <LoadScript googleMapsApiKey={GOOGLE_MAPS_API_KEY}>
+                <GoogleMap
+                  mapContainerStyle={MAP_CONTAINER_STYLE}
+                  center={MAP_CENTER}
+                  zoom={15}
+                  options={{
+                    disableDefaultUI: true,
+                    styles: [
+                      { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+                      { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+                      { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
+                    ],
+                  }}
+                >
+                  {state.zones.map(z => {
+                    // Calculate a deterministic visual offset for mock nodes
+                    const offsetLat = MAP_CENTER.lat + (parseInt(z.id.charAt(z.id.length-1), 36) || 0) * 0.001 - 0.005;
+                    const offsetLng = MAP_CENTER.lng + (Math.random() - 0.5) * 0.01;
+                    const color = z.congestion === 'red' ? '#f43f5e' : z.congestion === 'yellow' ? '#f59e0b' : '#10b981';
+                    return (
+                      <Circle
+                        key={z.id}
+                        center={{ lat: offsetLat, lng: offsetLng }}
+                        radius={60 + z.waitTime * 2}
+                        options={{ strokeColor: color, strokeOpacity: 0.8, fillOpacity: 0.35, fillColor: color }}
+                      />
+                    );
+                  })}
+                  <Marker position={MAP_CENTER} label="You" />
+                </GoogleMap>
+              </LoadScript>
             </div>
           </section>
         </div>
@@ -457,15 +487,15 @@ export default function AttendeeDashboard() {
   );
 }
 
-function ActivityIcon(props) {
+const ActivityIcon = memo(function ActivityIcon(props) {
   return <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg>;
-}
+});
 
-function Widget({ title, val, icon, highlight }) {
+const Widget = memo(function Widget({ title, val, icon, highlight }) {
   return (
     <div className={`p-5 rounded-2xl flex flex-col justify-between transition-all ${highlight ? 'bg-gradient-to-br from-brand-900 to-slate-900 border border-brand-500/50 shadow-[0_0_15px_rgba(16,185,129,0.2)] text-white' : 'glass-panel text-slate-200'}`} aria-label={`${title}: ${val}`}>
       <div className={`text-xs uppercase font-black tracking-wider flex items-center gap-2 mb-3 ${highlight ? 'text-brand-400' : 'text-slate-400'}`} aria-hidden="true">{icon} {title}</div>
       <div className="text-3xl font-black truncate tracking-tighter" aria-hidden="true">{val}</div>
     </div>
   );
-}
+});

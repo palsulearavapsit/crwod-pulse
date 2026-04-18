@@ -115,6 +115,20 @@ router.post('/anomaly-detect', async (req, res) => {
 });
 
 // ──────────────────────────────────────────────────────────────────────────────
+// 6b. AI Crowd Predictions
+// ──────────────────────────────────────────────────────────────────────────────
+router.post('/crowd-predictions', async (req, res) => {
+  const { zones } = req.body;
+  const metrics = (zones || []).map(z => `${z.name} (Wait: ${z.waitTime}m)`).join(', ');
+  
+  const prompt = `You are a venue analytics engine. Based on the following live zone congestion metrics: ${metrics}. Provide a 2-sentence prediction on crowd flow for the next 15 minutes, specifically giving AI-advised tips on which gates to open or close to optimize flow.`;
+  const fallback = `[Gemini Prediction] Based on current congestion, South Concourse is nearing capacity. Advise opening auxiliary Gate C and temporarily restricting North Gate ingress to redistribute load.`;
+  
+  const prediction = await callGemini(prompt, fallback);
+  res.json({ prediction });
+});
+
+// ──────────────────────────────────────────────────────────────────────────────
 // 7. Lost and Found Upload
 // ──────────────────────────────────────────────────────────────────────────────
 router.post('/lost-and-found-upload', async (req, res) => {

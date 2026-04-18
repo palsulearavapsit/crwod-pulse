@@ -14,16 +14,27 @@ const adminHeaders = {
   'Authorization': `Bearer ${ADMIN_TOKEN}`,
 };
 
+/**
+ * AdminConsole component serves as the command center for venue operations.
+ * It provides tools to manage zones, simulate scenarios, execute AI ops, and push alerts.
+ * @returns {JSX.Element} The rendered admin dashboard.
+ */
 export default function AdminConsole() {
   const [state, setState]             = useState({ zones: [], kpis: {} });
   const [alertText, setAlertText]     = useState('');
   const [aiCommand, setAiCommand]     = useState('');
   const [opsSummary, setOpsSummary]   = useState('');
   const [anomalyTxt, setAnomalyTxt]   = useState('');
+  const [predictionTxt, setPredictionTxt] = useState('');
   const [visionBusy, setVisionBusy]   = useState(false);
   const [toast, setToast]             = useState(null); // { type, message }
   const navigate = useNavigate();
 
+  /**
+   * Displays a toast notification in the UI.
+   * @param {string} type - The type of toast ('success', 'error', 'info').
+   * @param {string} message - The message body to display.
+   */
   const showToast = (type, message) => {
     setToast({ type, message });
     setTimeout(() => setToast(null), 4000);
@@ -36,6 +47,9 @@ export default function AdminConsole() {
     return () => socket.disconnect();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  /**
+   * Fetches the initial live venue zone data from the backend.
+   */
   const fetchState = async () => {
     try {
       const res  = await fetch(`${API_URL}/api/zones`);
@@ -44,6 +58,10 @@ export default function AdminConsole() {
     } catch { showToast('error', 'Could not fetch venue state.'); }
   };
 
+  /**
+   * Triggers a specific venue scenario to test system routing.
+   * @param {string} scenario - The scenario ID, e.g. 'halftime' or 'gate-closure'.
+   */
   const triggerScenario = async (scenario) => {
     await fetch(`${API_URL}/api/admin/scenario`, {
       method: 'POST', headers: adminHeaders,
@@ -51,6 +69,10 @@ export default function AdminConsole() {
     });
   };
 
+  /**
+   * Sends a global emergency or promotional alert to all connected attendees.
+   * @param {React.FormEvent} e - Form submission event.
+   */
   const sendAlert = async (e) => {
     e.preventDefault();
     if (!alertText.trim()) return;
@@ -92,10 +114,27 @@ export default function AdminConsole() {
     setOpsSummary(data.summary);
   };
 
+  /**
+   * Request Gemini to detect venue anomalies
+   */
   const detectAnomaly = async () => {
     const res  = await fetch(`${API_URL}/api/ai/anomaly-detect`, { method: 'POST', headers: adminHeaders });
     const data = await res.json();
     setAnomalyTxt(data.anomaly);
+  };
+
+  /**
+   * Request Gemini for AI Crowd Predictions based on live metrics
+   */
+  const getSimulatedPrediction = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/ai/crowd-predictions`, {
+        method: 'POST', headers: adminHeaders,
+        body: JSON.stringify({ zones: state.zones })
+      });
+      const data = await res.json();
+      setPredictionTxt(data.prediction);
+    } catch { showToast('error', 'Failed to fetch crowd prediction.'); }
   };
 
   const mockLostAndFound = async () => {
@@ -225,6 +264,11 @@ export default function AdminConsole() {
               <ScanSearch size={18} aria-hidden="true" /> Gemini Anomaly Scan
             </button>
             {anomalyTxt && <div role="status" className="p-4 bg-orange-500/10 border border-orange-500/30 text-orange-200 text-sm rounded-xl mb-4 leading-relaxed">{anomalyTxt}</div>}
+
+            <button onClick={getSimulatedPrediction} aria-label="Run Gemini Crowd Prediction on active zones" className="w-full bg-indigo-900/40 border border-indigo-500/50 hover:bg-indigo-900/60 text-indigo-300 font-bold py-3 rounded-xl text-sm mb-3 flex justify-center items-center gap-2 transition-colors">
+              AI Crowd Predictions
+            </button>
+            {predictionTxt && <div role="status" className="p-4 bg-indigo-500/10 border border-indigo-500/30 text-indigo-200 text-sm rounded-xl mb-4 leading-relaxed mt-2">{predictionTxt}</div>}
 
             <button onClick={mockVisionUpload} disabled={visionBusy} aria-label="Upload vision incident for AI triage" className="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl text-sm flex items-center justify-center gap-2 mb-3 transition-colors disabled:opacity-50">
               <Camera size={18} aria-hidden="true" /> {visionBusy ? 'AI Analyzing…' : 'Staff: Upload Vision Incident'}

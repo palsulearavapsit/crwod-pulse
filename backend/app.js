@@ -10,6 +10,7 @@ const express    = require('express');
 const http       = require('http');
 const cors       = require('cors');
 const rateLimit  = require('express-rate-limit');
+const compression = require('compression');
 require('dotenv').config();
 
 const IS_TEST = process.env.NODE_ENV === 'test';
@@ -48,31 +49,30 @@ const adminLimiter = rateLimit({
 });
 
 // ── Core Middleware ────────────────────────────────────────────────────────────
+app.use(compression());
 app.use(cors({ origin: IS_TEST ? true : allowedOrigins, credentials: true }));
 app.use(express.json({ limit: '10kb' }));
 app.use(generalLimiter);
 
 // ── Security Headers ──────────────────────────────────────────────────────────
+const helmet = require('helmet');
+app.use(helmet());
+app.use(helmet.contentSecurityPolicy({
+  directives: {
+    defaultSrc: ["'self'"],
+    scriptSrc: ["'self'", "https://www.googletagmanager.com", "https://www.google-analytics.com"],
+    connectSrc: ["'self'", "https://www.google-analytics.com", "wss:", "https://firebaselogging.googleapis.com"],
+    imgSrc: ["'self'", "data:", "https://maps.googleapis.com", "https://maps.gstatic.com"],
+    frameSrc: ["https://maps.google.com", "https://www.google.com"],
+    styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+    fontSrc: ["'self'", "https://fonts.gstatic.com"],
+  },
+}));
+
 app.use((req, res, next) => {
   // Force HTTPS in production only
   if (!IS_TEST && process.env.NODE_ENV === 'production' && req.headers['x-forwarded-proto'] !== 'https') {
     return res.redirect(301, `https://${req.headers.host}${req.url}`);
-  }
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-Frame-Options', 'DENY');
-  res.setHeader('X-XSS-Protection', '1; mode=block');
-  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
-  if (!IS_TEST) {
-    res.setHeader('Content-Security-Policy', [
-      "default-src 'self'",
-      "script-src 'self' https://www.googletagmanager.com https://www.google-analytics.com",
-      "connect-src 'self' https://www.google-analytics.com wss:",
-      "img-src 'self' data: https://maps.googleapis.com https://maps.gstatic.com",
-      "frame-src https://maps.google.com https://www.google.com",
-      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-      "font-src 'self' https://fonts.gstatic.com",
-    ].join('; '));
   }
   next();
 });
@@ -111,14 +111,18 @@ app.use((req, res) => res.status(404).json({ error: 'Endpoint not found.' }));
 // Global error handler
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
-  if (!IS_TEST) console.error('[Server Error]', err.message);
-  res.status(500).json({ error: 'Internal server error.' });
+  if (!IS_TEST) console.error('[Server Error]', err.stack || err.message);
+  
+  const status = err.status || 500;
+  const message = status === 500 ? 'Internal server error.' : err.message;
+  res.status(status).json({ error: message });
 });
 
 // ── Socket + Broadcast — only in non-test environments ────────────────────────
 if (!IS_TEST) {
   const { state } = require('./data/mockState');
   let connectedClients = 0;
+  let pendingUpdate = false;
 
   io.on('connection', (socket) => {
     connectedClients++;
@@ -127,10 +131,22 @@ if (!IS_TEST) {
     socket.on('disconnect', () => { connectedClients--; });
   });
 
+  // Batch updates: instead of emitting purely on interval,
+  // we check if an update is pending and emit every 500ms
   const broadcastInterval = setInterval(() => {
-    if (connectedClients > 0) io.emit('state:update', state);
-  }, 3000);
+    if (connectedClients > 0 && pendingUpdate) {
+      io.emit('state:update', state);
+      pendingUpdate = false;
+    }
+  }, 500);
   broadcastInterval.unref?.();
+
+  // Export a function to trigger a batched update
+  app.set('triggerUpdate', () => {
+    pendingUpdate = true;
+  });
+} else {
+  app.set('triggerUpdate', () => {});
 }
 
 module.exports = { app, server, io };

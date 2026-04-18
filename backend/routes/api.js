@@ -136,7 +136,11 @@ module.exports = (io) => {
     else if (zone.waitTime < 15) zone.congestion = 'yellow';
     else zone.congestion = 'red';
 
-    io.emit('state:update', state);
+    if (req.app.get('triggerUpdate')) {
+      req.app.get('triggerUpdate')();
+    } else {
+      io.emit('state:update', state);
+    }
     res.json({ success: true, zone });
   });
 
