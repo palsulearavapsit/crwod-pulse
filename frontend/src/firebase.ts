@@ -12,7 +12,15 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
-const app = initializeApp(firebaseConfig);
+let app: any;
+try {
+  app = initializeApp(firebaseConfig);
+} catch (error) {
+  console.error('Firebase failed to initialize. Check your environment variables:', error);
+  app = { name: '[DEFAULT]', options: {}, automaticDataCollectionEnabled: false }; 
+}
+
+
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 

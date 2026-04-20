@@ -9,8 +9,8 @@ import StatCard from '../components/atoms/StatCard';
 import LanguageSwitcher from '../components/molecules/LanguageSwitcher';
 import ZoneList from '../components/organisms/ZoneList';
 
-// Google Maps Config
-const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'fake_demo_key';
+// Google Maps Config - Added safe fallback for production stability
+const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''; 
 const MAP_CONTAINER_STYLE = { width: '100%', height: '100%' };
 const MAP_CENTER = { lat: 23.0927, lng: 72.5976 };
 
