@@ -2,7 +2,6 @@ import React, { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute';
 import ErrorBoundary from './components/ErrorBoundary';
-// @ts-ignore
 import { SocketProvider } from './context/SocketContext';
 import Footer from './components/Footer';
 
@@ -27,6 +26,13 @@ const App: React.FC = () => {
       <BrowserRouter>
         <SocketProvider>
           <div className="min-h-screen flex flex-col">
+            {/* ♿ Global Accessibility Shortcut */}
+            <a 
+              href="#main-content" 
+              className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-[100] bg-brand-500 text-slate-950 font-black px-6 py-3 rounded-2xl shadow-2xl"
+            >
+              Skip to content
+            </a>
             <Suspense fallback={<PageLoader />}>
               <Routes>
                 <Route path="/" element={<Landing />} />

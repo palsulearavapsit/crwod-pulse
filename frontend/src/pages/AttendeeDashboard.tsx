@@ -5,6 +5,7 @@ import { GoogleMap, LoadScript, Marker, Circle } from '@react-google-maps/api';
 
 import { socketService } from '../services/socket';
 import { VenueState, Zone } from '../types';
+import { useVenueSync } from '../hooks/useVenueSync';
 import StatCard from '../components/atoms/StatCard';
 import LanguageSwitcher from '../components/molecules/LanguageSwitcher';
 import ZoneList from '../components/organisms/ZoneList';
@@ -16,14 +17,8 @@ const MAP_CENTER = { lat: 23.0927, lng: 72.5976 };
 
 const AttendeeDashboard: React.FC = () => {
   const { t } = useTranslation();
-  const [state, setState] = useState<VenueState>({ zones: [], alerts: [], kpis: {} });
+  const { state, loading, error } = useVenueSync();
   const [activeTab, setActiveTab] = useState<'map' | 'list'>('map');
-
-  useEffect(() => {
-    const socket = socketService.connect();
-    socketService.onStateUpdate((newState) => setState(newState));
-    return () => socketService.disconnect();
-  }, []);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-brand-500/30">
@@ -87,7 +82,7 @@ const AttendeeDashboard: React.FC = () => {
                 zoom={15}
                 options={{ disableDefaultUI: true }}
               >
-                {state.zones.map(z => {
+                {state.zones.map((z: Zone) => {
                   const offset = (parseInt(z.id.slice(-1), 36) || 0) * 0.001;
                   const color = z.congestion === 'red' ? '#f43f5e' : z.congestion === 'yellow' ? '#f59e0b' : '#10b981';
                   return (

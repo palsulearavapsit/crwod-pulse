@@ -20,13 +20,25 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('[Error Boundary Caught]', error, errorInfo);
+    // 📡 Industrial Telemetry Snapshot
+    const telemetry = {
+      timestamp: new Date().toISOString(),
+      error: error.message,
+      stack: error.stack,
+      platform: navigator.userAgent,
+      url: window.location.href,
+      viewport: `${window.innerWidth}x${window.innerHeight}`
+    };
+    
+    console.error('[System Telemetry Captured]', telemetry);
+    
     // @ts-ignore
     if (typeof gtag === 'function') {
       // @ts-ignore
       gtag('event', 'exception', {
         'description': error.message,
-        'fatal': false
+        'fatal': true,
+        'event_category': 'telemetry'
       });
     }
   }

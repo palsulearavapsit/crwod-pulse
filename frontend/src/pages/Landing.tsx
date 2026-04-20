@@ -37,15 +37,15 @@ export default function Landing() {
       </a>
 
       {/* ── Navbar ── */}
-      <nav className="sticky top-0 z-20 glass-panel border-b border-slate-800/50 px-6 sm:px-12 py-4 flex justify-between items-center" aria-label="Main navigation">
-        <span className="font-black text-xl text-white tracking-tight flex items-center gap-2">
+      <nav className="sticky top-0 z-20 glass-panel border-b border-slate-800/50 px-6 sm:px-12 py-4 flex justify-between items-center" aria-label="CrowdPulse Main Navigation">
+        <span className="font-black text-xl text-white tracking-tight flex items-center gap-2" role="img" aria-label="CrowdPulse Logo">
           <Activity size={20} className="text-brand-500" aria-hidden="true" /> CrowdPulse
         </span>
         <div className="flex gap-3">
-          <Link to="/display" className="text-sm font-bold text-slate-400 hover:text-white px-4 py-2 rounded-xl hover:bg-slate-800 transition-colors">
+          <Link to="/display" aria-label="Visit the public display board" className="text-sm font-bold text-slate-400 hover:text-white px-4 py-2 rounded-xl hover:bg-slate-800 transition-colors">
             Display Mode
           </Link>
-          <Link to="/login" className="text-sm font-black bg-brand-500 hover:bg-brand-400 text-slate-950 px-5 py-2 rounded-xl transition-all hover:scale-105 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+          <Link to="/login" aria-label="Login to the platform" className="text-sm font-black bg-brand-500 hover:bg-brand-400 text-slate-950 px-5 py-2 rounded-xl transition-all hover:scale-105 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
             Login →
           </Link>
         </div>
@@ -137,11 +137,11 @@ export default function Landing() {
       {/* ── Google Services Callout ── */}
       <section className="py-20 px-6 sm:px-12" aria-labelledby="google-heading">
         <div className="max-w-4xl mx-auto glass-panel p-10 rounded-3xl border border-brand-500/20 text-center shadow-[0_0_40px_rgba(16,185,129,0.08)]">
-          <h2 id="google-heading" className="text-2xl font-black text-white mb-4">Built on Google's Ecosystem</h2>
-          <p className="text-slate-400 mb-8 leading-relaxed">CrowdPulse runs on Gemini 1.5 Flash for all AI features, Google Maps for venue location, Google Fonts for typography, and Google Analytics for usage intelligence.</p>
-          <div className="flex flex-wrap justify-center gap-4">
-            {['Gemini 1.5 Flash AI', 'Google Maps Embed', 'Google Fonts (Inter)', 'Google Analytics'].map(s => (
-              <span key={s} className="bg-brand-500/10 border border-brand-500/30 text-brand-300 text-xs font-black px-4 py-2 rounded-full tracking-wide">{s}</span>
+          <h2 id="google-heading" className="text-2xl font-black text-white mb-4">Powered by Google Cloud & Gemini</h2>
+          <p className="text-slate-400 mb-8 leading-relaxed">CrowdPulse leverages Gemini 1.5 Flash for real-time multilingual translation and routing analysis, and Google Maps Platform for precision venue visualization.</p>
+          <div className="flex flex-wrap justify-center gap-4" role="list">
+            {['Gemini 1.5 Flash AI', 'Google Maps Platform', 'Google Fonts (Inter)', 'Google Analytics 4'].map(s => (
+              <span key={s} role="listitem" className="bg-brand-500/10 border border-brand-500/30 text-brand-300 text-xs font-black px-4 py-2 rounded-full tracking-wide">{s}</span>
             ))}
           </div>
         </div>

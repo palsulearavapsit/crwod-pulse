@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ShieldCheck, User, Lock, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { HARDCODED_USERS, ROLES, SESSION_DURATION_MS } from '../utils/constants';
@@ -37,7 +37,13 @@ const Auth: React.FC = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  
+  const usernameRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    usernameRef.current?.focus();
+  }, [isLogin]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,16 +127,33 @@ const Auth: React.FC = () => {
     <div className="bg-slate-950 min-h-screen flex items-center justify-center p-6 text-slate-200 relative overflow-hidden">
       <div className="glass-panel w-full max-w-md p-8 rounded-3xl z-10 border border-brand-500/20">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-black text-white">{isLogin ? 'Welcome Back' : 'Create Account'}</h1>
+          <h1 className="text-3xl font-black text-white tracking-tight">{isLogin ? 'Welcome Back' : 'Create Account'}</h1>
+          <p className="text-slate-500 text-xs mt-2 uppercase tracking-widest font-bold">Secure Access Gateway</p>
+        </div>
+
+        <div aria-live="assertive" className="mb-4">
+          {error && (
+            <div className="bg-rose-500/10 border border-rose-500/30 text-rose-400 p-4 rounded-2xl text-xs font-bold animate-in fade-in slide-in-from-top-2">
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 p-4 rounded-2xl text-xs font-bold animate-in fade-in slide-in-from-top-2">
+              {success}
+            </div>
+          )}
         </div>
         {/* Simplified for brevity in this tool call, normally the full JSX would be here */}
         <form onSubmit={isLogin ? handleLogin : handleSignup} className="space-y-4">
           <input 
+            ref={usernameRef}
             type="text" 
             placeholder="Username" 
+            required
+            aria-label="Username"
             value={username} 
             onChange={e => setUsername(e.target.value)}
-            className="w-full bg-slate-900 border border-slate-700 p-3 rounded-xl"
+            className="w-full bg-slate-900 border border-slate-800 p-4 rounded-2xl focus:ring-2 focus:ring-brand-500/50 outline-none transition-all"
           />
           <input 
             type="password" 

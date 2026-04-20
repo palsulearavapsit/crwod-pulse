@@ -11,6 +11,50 @@
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
+/* 🧪 High-Fidelity Accessibility & Motion Layer */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-delay: -1ms !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    background-attachment: initial !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* 💎 Elite Glassmorphism & Interaction Layer */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #020617;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #10b981;
+}
+
+:focus-visible {
+  outline: 2px solid #10b981;
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.glass-panel {
+  backdrop-filter: blur(12px);
+  background: rgba(15, 23, 42, 0.6);
+}
+
 @layer base {
   body {
     @apply bg-slate-950 text-slate-200 font-sans tracking-wide;
